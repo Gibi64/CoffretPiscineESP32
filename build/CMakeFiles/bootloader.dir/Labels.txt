@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+C:/Local/Softwares/esp32/CoffretPiscine/build/CMakeFiles/bootloader
+C:/Local/Softwares/esp32/CoffretPiscine/build/CMakeFiles/bootloader.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/CMakeFiles/bootloader-complete.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

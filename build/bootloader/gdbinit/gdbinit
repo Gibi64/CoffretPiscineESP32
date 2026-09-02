@@ -1,0 +1,2 @@
+source C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/gdbinit/symbols
+source C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/gdbinit/connect
