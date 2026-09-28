@@ -1,241 +1,296 @@
-﻿// CoffretPiscine.cpp : définit le point d'entrée de l'application.
-//
-
-#include "CoffretPiscine.h"
+﻿#include "CoffretPiscine.h"
 #include "CTCP_Modbus.h"
 #include "CProtocoleModbusRJE.h"
 #include <map>
 #include "CLaunchThread.hpp"
 #include "CTimeUtils.hpp"
 #include <atomic>
-using namespace std;
-
-class CCoffretPiscine
+#include <memory>
+CCoffretPiscine::CCoffretPiscine()
 {
+}
 
-public:
-	struct sAutomateEntry
-	{
-		std::string IPAdress;
-		std::string Description;
-		int RegisterOn;
-	};
-	std::map<std::string, CProtocoleModbusRJE*> m_map_IP;
-	std::map < std::string, pair<CProtocoleModbusRJE*, int>> Actions;
 
-private :
-	std::vector<sAutomateEntry> m_VectorEntry;
-public:
-	CCoffretPiscine(CTCPLib * pTCPLib,std::vector<sAutomateEntry> VectorEntry	)
+CCoffretPiscine::~CCoffretPiscine()
+{
+	for (auto& kProt : m_map_IP)
 	{
-		m_VectorEntry = VectorEntry;
-		CProtocoleModbusRJE* pProtModbusRJE = nullptr;
-		for (auto i = 0; i < m_VectorEntry.size(); i++)
+
+		delete kProt.second;
+	}
+	for (auto& kEvents : m_VectorEvents)
+	{
+		delete kEvents;
+	}
+}
+void CCoffretPiscine::DoModeAction()
+{
+	switch (GetMode())
+	{
+	case 0:
+		write_log("CoffretPiscine is in Manual mode");
+		for (auto& entry : m_VectorEntry)
 		{
-			if (m_map_IP.count(m_VectorEntry[i].IPAdress))
+			write_log("Relais: " + entry.Description + " IP: " + entry.IPAdress + " Register: " + std::to_string(entry.RegisterOn));
+			SendRelay(entry.Description, true); // On -> démrre tous les relais en mode manuel
+		}
+		break;
+	case 1:
+		write_log("CoffretPiscine is in Off mode");
+		for (auto& entry : m_VectorEntry)
+		{
+			write_log("Relais: " + entry.Description + " IP: " + entry.IPAdress + " Register: " + std::to_string(entry.RegisterOn));
+			SendRelay(entry.Description, false); // Off -> arrete tous les relais en mode manuel
+		}
+		break;
+	case 2:
+		// On ne fait rien en mode programme, les events sont gérés par les threads CProgEvents
+		// qui ont ete lus dans le fichier de configuration et qui sont en cours d'execution
+		break;
+	default:
+		write_log("Unknown mode: " + std::to_string(GetMode()));
+		break;
+	}
+}
+
+
+void CCoffretPiscine::AddEvent(std::string Id, CTimeUtils::sUTCTime StartTime, CTimeUtils::sDurationTime Frequency, CTimeUtils::sDurationTime Duration)
+{
+	write_log("Creation d'un event");
+
+	CProgEvents* Event = new CProgEvents(&m_LaPoste,this,Id, StartTime, Frequency, Duration);
+	m_VectorEvents.push_back(Event);
+}
+void CCoffretPiscine::SendRelay(std::string Which, bool OnOff)
+{
+	//         Dans ce ptotocole ce n'est pas un coil mais un entier qui est écrit dans le registre 2 de l'adresse 1
+	// la valeur dépend du relais qui est commandé et de l'état On ou Off
+	// 	 Pour le relais 1 : 256 pour Off et 257 pour On
+	// 	 Pour le relais 2 : 512 pour Off et 513 pour On
+	// 
+	// Le registre est toujours le 2 et l'adresse est toujours 1
+	// protocole spécifique à la carte relais Dynan
+	auto it = Actions.find(Which);
+
+	if (it != Actions.end())
+	{
+		auto pProt = it->second.first;
+		auto RelayNumber = it->second.second;
+		int Value = RelayNumber + (OnOff ? 1 : 0);
+		pProt->SetRegister(2);
+		pProt->SetValue(reinterpret_cast<float&>(Value));
+		pProt->SetTypeOfValue(CProtocoleModbusRJE::TYPE_INTEGER);
+		pProt->EnvoieCommande();
+	}
+	else
+	{
+		write_log("Action inconnue : " + Which);
+	}
+}
+
+CTimeUtils::sUTCTime CCoffretPiscine::CProgEvents::CorrectGenericStartToLocalTime()
+{
+	CTimeUtils::sUTCTime out = m_StartTimeHourOfDay;
+	// fonction utilisée pour les GET qui renvoient la date de départ en local time et non en UTC
+	auto timeToday = CTimeUtils::SystemDateTime(CTimeUtils::GetMs());
+	//       changer le local utilisateur en UTC
+	// Date de changement d'heure d'été
+	// 
+	int DayOfMarch = CTimeUtils::GetLastSundayOfMonthInYear(3, timeToday.year);
+	CTimeUtils::sUTCTime SummerChangingLocalTime = { timeToday.year,3,DayOfMarch,2,0,0,0 };
+	// Date de changement d'heure d'hiver
+	// 
+	int DayOfOctober = CTimeUtils::GetLastSundayOfMonthInYear(10, timeToday.year);
+	CTimeUtils::sUTCTime WinterChangingLocalTime = { timeToday.year,10,DayOfOctober,3,0,0,0 };
+	// recherche du premeier element de date non nul en partant de year
+	for (int iElement = 0; iElement < 7; iElement++)
+	{
+		if (out.GetIndexValue(iElement) != 0)
+		{
+			// si la dm_StartTimeHourOfDayate de depart est superieure a la date actuelle on garde
+			// sinon on modifie l'element précédent + 1 
+			// exemple si c'est l'heure demarage 8h et qu'il est 8h30 on decale au jour suivant.
+						// transfomation UTC
+			if (out > SummerChangingLocalTime && out < WinterChangingLocalTime)
 			{
-				pProtModbusRJE = m_map_IP[m_VectorEntry[i].IPAdress];
+				out.hour += 2;
 			}
 			else
 			{
-				pProtModbusRJE = new CProtocoleModbusRJE();
-				m_map_IP[m_VectorEntry[i].IPAdress] = pProtModbusRJE;
-				CTCP_Modbus* pTCP = new CTCP_Modbus(m_VectorEntry[i].IPAdress,true,pTCPLib);
-				pProtModbusRJE->pTCPClient = pTCP;
-
+				out.hour += 1;
 			}
-			Actions[m_VectorEntry[i].Description] = { pProtModbusRJE, m_VectorEntry[i].RegisterOn };
+			if (out < timeToday)
+				out.IndexPlusPlus(iElement - 1);
+			break;
 		}
+		out.SetIndexValue(iElement, timeToday.GetIndexValue(iElement));
 	}
-	~CCoffretPiscine()
-	{
-		for (auto& kProt : m_map_IP)
-		{
-			
-			delete kProt.second;
-		}
-		for (auto& kEvents : m_VectorEvents)
-		{
-			kEvents->bStopThread = true;
-			delete kEvents;
-		}
-	}
-	void AddEvent(std::string Id, CTimeUtils::sUTCTime StartTime, CTimeUtils::sDurationTime Frequency, CTimeUtils::sDurationTime Duration)
-	{
-		CProgEvents* Event = new CProgEvents(this,Id, StartTime, Frequency, Duration);
-		m_VectorEvents.push_back(Event);
-	}
-	class CProgEvents
-	{
-	private:
-		CTimeUtils::sDurationTime m_Duration;
-		CTimeUtils::sDurationTime m_DeltaTime; // Frequence en DeltaTime
-		CTimeUtils::sUTCTime m_StartTimeHourOfDay; // Jour? et Heure de départ
-		std::string ActionId;
-		unique_ptr<CLaunchThread> m_thread;
-		void CorrectGenericStart()
-		{
-			auto timeToday = CTimeUtils::SystemDateTime(CTimeUtils::GetMs());
-			//       changer le local utilisateur en UTC
-			// Date de changement d'heure d'été
-			// 
-			int DayOfMarch = CTimeUtils::GetLastSundayOfMonthInYear(3, timeToday.year);
-			CTimeUtils::sUTCTime SummerChangingLocalTime = {timeToday.year,3,DayOfMarch,2,0,0,0 };
-			// Date de changement d'heure d'hiver
-			// 
+	return out;
+}
 
-			int DayOfOctober = CTimeUtils::GetLastSundayOfMonthInYear(10, timeToday.year);
-			CTimeUtils::sUTCTime WinterChangingLocalTime = { timeToday.year,10,DayOfOctober,3,0,0,0 };
-
-			// recherche du premeier element de date non nul en partant de year
-			for (int iElement = 0; iElement < 7; iElement++)
-			{
-				if (m_StartTimeHourOfDay.GetIndexValue(iElement) != 0)
-				{
-					// si la dm_StartTimeHourOfDayate de depart est superieure a la date actuelle on garde
-					// sinon on modifie l'element précédent + 1 
-					// exemple si c'est l'heure demarage 8h et qu'il est 8h30 on decale au jour suivant.
-								// transfomation UTC
-					if (m_StartTimeHourOfDay > SummerChangingLocalTime && m_StartTimeHourOfDay < WinterChangingLocalTime)
-					{
-						m_StartTimeHourOfDay.hour -= 2;
-					}
-					else
-					{
-						m_StartTimeHourOfDay.hour -= 1;
-
-					}
-
-					if (m_StartTimeHourOfDay < timeToday)
-						m_StartTimeHourOfDay.IndexPlusPlus(iElement - 1);
-					break;
-				}
-				m_StartTimeHourOfDay.SetIndexValue(iElement, timeToday.GetIndexValue(iElement));
-			}
-		}
-	public:
-		atomic<bool> bStopThread{ false };
-		struct sThreadArgs
-		{
-			CProgEvents* pProg;
-			CCoffretPiscine* pCoffret;
-		};
-		CLaunchThread* GetThread() const
-		{
-			return m_thread.get();
-		}
-		CProgEvents(CCoffretPiscine*pCoffret,std::string Id,CTimeUtils::sUTCTime StartTimeHourOfDay, CTimeUtils::sDurationTime Frequency, CTimeUtils::sDurationTime Duration)
-		{
-			
-			m_StartTimeHourOfDay = StartTimeHourOfDay;
-			m_DeltaTime = Frequency;
-			m_Duration = Duration;
-			ActionId = Id;
-			CorrectGenericStart();
-			// tout est pret pour lancer la thread
-			sThreadArgs* pArgs = new sThreadArgs{ this, pCoffret };
-			m_thread = make_unique<CLaunchThread>(&CProgEvents::LoopTimer, pArgs);
-		}
-		static void LoopTimer(void* pArgs)
-		{
-			enum {WAITING_START_TIME,WAITING_END_TIME};
-			int iState = WAITING_START_TIME;
-
-			sThreadArgs* args = static_cast<sThreadArgs*>(pArgs);
-			CProgEvents* pProg = args->pProg;
-			CCoffretPiscine* pCoffret = args->pCoffret;
-
-			auto RemainingTime = pProg->m_StartTimeHourOfDay.ToMs() - CTimeUtils::GetMs();
-			write_log("Lancement de la thread - Remaining Time :" + std::to_string(RemainingTime));
-			while (!pProg->bStopThread)
-			{
-				for (;;)
-				{
-					if (RemainingTime < 10) break;
-					CTimeUtils::CPUSleep(RemainingTime / 2);
-					RemainingTime /= 2;
-					write_log("Apres Sleep - Remaining Time :" + std::to_string(RemainingTime));
-
-				}
-				// Do the action 
-				switch (iState)
-				{
-				case WAITING_START_TIME:
-					pCoffret->SendRelay(pProg->ActionId,1);
-					iState = WAITING_END_TIME;
-					RemainingTime = pProg->m_Duration.ToMs();
-					write_log("Ouverture Relais - Remaining Time : " + std::to_string(RemainingTime));
-
-					break;
-				case WAITING_END_TIME:
-					pCoffret->SendRelay(pProg->ActionId, 0);
-					iState = WAITING_START_TIME;
-					RemainingTime = pProg->m_DeltaTime.ToMs();
-					write_log("Fermeture Relais - Remaining Time : " + std::to_string(RemainingTime));
-
-					break;
-
-				}
-			}
-
-		}
-
-	};
-private:
-	std::vector<CProgEvents *> m_VectorEvents;
-public:
-	void SendRelay(std::string Which, bool OnOff)
-	{
-		//         Dans ce ptotocole ce n'est pas un coil mais un entier qui est écrit dans le registre 2 de l'adresse 1
-		// la valeur dépend du relais qui est commandé et de l'état On ou Off
-		// 	 Pour le relais 1 : 256 pour Off et 257 pour On
-		// 	 Pour le relais 2 : 512 pour Off et 513 pour On
-		// 
-		// Le registre est toujours le 2 et l'adresse est toujours 1
-		// protocole spécifique à la carte relais Dynan
-		auto it = Actions.find(Which);
-
-		if (it != Actions.end())
-		{
-			auto pProt = it->second.first;
-			auto RelayNumber = it->second.second;
-			int Value = RelayNumber + (OnOff ? 1 : 0);
-			pProt->SetRegister(2);
-			pProt->SetValue(reinterpret_cast<float&>(Value));
-			pProt->SetTypeOfValue(CProtocoleModbusRJE::TYPE_INTEGER);
-			pProt->EnvoieCommande();
-		}
-		else
-		{
-			write_log("Action inconnue : " + Which);
-		}
-	}
-
-	
-};
-#if defined(_WINDOWS)
-int main()
-#elif defined(_ESP32)
-extern "C" void app_main(void)
-#endif
+void CCoffretPiscine::CProgEvents::CorrectGenericStartToUTC()
 {
-#define ON 1
-#define OFF 0
-	unique_ptr<CTCPLib> pTCPLIB = make_unique<CTCPLib>();
-	std::vector< CCoffretPiscine::sAutomateEntry> VectorOfActions;
-	VectorOfActions.push_back({ "127.0.0.1:24","Pompe",256 });
-	VectorOfActions.push_back({ "127.0.0.1:24","Electrolyseur",512 });
+	auto timeToday = CTimeUtils::SystemDateTime(CTimeUtils::GetMs());
+	//       changer le local utilisateur en UTC
+	// Date de changement d'heure d'été
+	// 
+	int DayOfMarch = CTimeUtils::GetLastSundayOfMonthInYear(3, timeToday.year);
+	CTimeUtils::sUTCTime SummerChangingLocalTime = { timeToday.year,3,DayOfMarch,2,0,0,0 };
+	// Date de changement d'heure d'hiver
+	// 
 
-	unique_ptr<CCoffretPiscine> pCoffret = make_unique<CCoffretPiscine>(pTCPLIB.get(), VectorOfActions);
-	pCoffret->SendRelay("Pompe", ON);
+	int DayOfOctober = CTimeUtils::GetLastSundayOfMonthInYear(10, timeToday.year);
+	CTimeUtils::sUTCTime WinterChangingLocalTime = { timeToday.year,10,DayOfOctober,3,0,0,0 };
 
-	write_log("Creation d'un event");
-	pCoffret->AddEvent( "Pompe", {0, 0, 0, 15, 45,0, 0}, {0,0,1,0,0,0,0}, {0,0,0,0,3,0,0});
-	for (;;)
+	// recherche du premeier element de date non nul en partant de year
+	for (int iElement = 0; iElement < 7; iElement++)
 	{
-		CTimeUtils::CPUSleep(2);
+		if (m_StartTimeHourOfDay.GetIndexValue(iElement) != 0)
+		{
+			// si la dm_StartTimeHourOfDayate de depart est superieure a la date actuelle on garde
+			// sinon on modifie l'element précédent + 1 
+			// exemple si c'est l'heure demarage 8h et qu'il est 8h30 on decale au jour suivant.
+			// transfomation UTC
+			// TODO : je pense que c'est indesMoinsMoins(iElement - 1) et pas IndexPlusPlus
+			if (m_StartTimeHourOfDay > SummerChangingLocalTime && m_StartTimeHourOfDay < WinterChangingLocalTime)
+			{
+				m_StartTimeHourOfDay.hour -= 2;
+			}
+			else
+			{
+				m_StartTimeHourOfDay.hour -= 1;
+
+			}
+
+			if (m_StartTimeHourOfDay < timeToday)
+				m_StartTimeHourOfDay.IndexPlusPlus(iElement - 1);
+			break;
+		}
+		m_StartTimeHourOfDay.SetIndexValue(iElement, timeToday.GetIndexValue(iElement));
 	}
-#if defined(_WINDOWS)
-	return 0;
-#endif
+}
+
+CCoffretPiscine::CProgEvents::CProgEvents(CLaPoste* pLaPoste, CCoffretPiscine* pCoffret, std::string Id, CTimeUtils::sUTCTime StartTimeHourOfDay, CTimeUtils::sDurationTime Frequency, CTimeUtils::sDurationTime Duration)
+	: CKernelLaunchThread(pLaPoste, nullptr), m_pCoffret(pCoffret)
+{
+
+	m_StartTimeHourOfDay = StartTimeHourOfDay;
+	m_DeltaTime = Frequency;
+	m_Duration = Duration;
+	ActionId = Id;
+	CorrectGenericStartToUTC();
+	m_RemainingTimer = nullptr;
+	m_Event_State = INIT_EVENT;
+	m_RemainingTime = m_StartTimeHourOfDay.ToMs() - CTimeUtils::GetMs();
+	#ifdef _ESP32
+	write_log("Lancement de la thread Event - Remaining Time :" + std::to_string(m_RemainingTime));
+	#else
+	write_log("Lancement de la thread Event - Remaining Time :" + std::to_string(m_RemainingTime) +" ID = " + std::to_string(GetCurrentThreadId()));
+	#endif
+	// tout est pret pour lancer la thread
+
+	//m_thread = std::make_unique<std::thread>(ThreadEntry, this);
+}
+void CCoffretPiscine::CProgEvents::Function()
+{
+	CLaPoste::sMessage msg;
+	while (GetLaPoste()->GetMessage(this, &msg))
+	{
+		HandleMessage(msg);
+
+		// On laisse une respiration pour un éventuel CLOSE_THREAD
+		CTimeUtils::CPUSleep(1);
+	}
+	if (GetState() !=THREAD_RUNNING)
+		return;
+
+	// Sinon → on exécute l’action
+	switch (m_Event_State)
+	{
+	case INIT_EVENT:
+		// On lance le premier timer pour attendre le démarrage de l'action
+		m_RemainingTimer = new CTimerThread(GetLaPoste(), static_cast<CKernelLaunchThread*>(this), m_RemainingTime);
+		m_Event_State = WAITING_START_TIME;
+		#ifdef _ESP32
+		write_log("Event INIT - Remaining Time :" + std::to_string(m_RemainingTime));
+		#else
+		write_log("Event INIT - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		#endif
+		break;
+	case WAITING_START_TIME:
+		// Si le timer est toujours present , on ne fait rien
+		if (m_RemainingTimer)
+			return;
+		// Le <timer est termin� ? on ex�cute l�action et on lance le timer pour la dur�e de l�action
+		#ifdef _ESP32
+		write_log("Event START - Remaining Time :" + std::to_string(m_RemainingTime));
+		#else
+		write_log("Event START - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		#endif
+		m_pCoffret->SendRelay(ActionId, 1);
+		m_Event_State = WAITING_END_TIME;
+		m_RemainingTime = m_Duration.ToMs();
+		m_RemainingTimer = new CTimerThread(GetLaPoste(), static_cast<CKernelLaunchThread*>(this), m_RemainingTime);
+		break;
+
+	case WAITING_END_TIME:
+		// Si le timer est toujours present , on ne fait rien
+		if (m_RemainingTimer)
+			return;
+		#ifdef _ESP32
+		write_log("Event END - Remaining Time :" + std::to_string(m_RemainingTime));
+		#else
+		write_log("Event END - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		#endif
+		m_pCoffret->SendRelay(ActionId, 0);
+		m_Event_State = INIT_EVENT;
+		m_RemainingTime = m_DeltaTime.ToMs();
+		break;
+	}
+}
+void CCoffretPiscine::CProgEvents::HandleMessage(CLaPoste::sMessage msg)
+{
+	if (msg.Command == CLOSE_THREAD)
+	{
+		SetState(THREAD_ABORTED);
+		if (m_RemainingTimer)
+		{
+			SendMessage(m_RemainingTimer, CLOSE_THREAD, 0);
+		}
+			
+	}
+	else if (msg.Command == THREAD_DESTROYED && msg.pParam == m_RemainingTimer)
+	{ 
+		// On teste ici si le m_RemainingTimer est toujours la map du Kernel
+		// si c'est le cas il faut attendre qu'il diparaisse pour mettre le pointeur à 0
+		m_RemainingTimer = nullptr;
+		m_RemainingTime /= 2;
+		write_log("Apres Sleep - Remaining Time :" + std::to_string(m_RemainingTime));
+	}
+}
+void CCoffretPiscine::CProgEvents::Cleanup()
+{
+
+	switch (GetState())
+	{
+	case THREAD_ENDED:
+		write_log("Fin de la thread Event -Adresse :" + std::to_string((uintptr_t)this));
+		if (m_RemainingTimer)
+			SendMessage(m_RemainingTimer, CLOSE_THREAD, 0);
+
+		if (GetParent())
+			SendMessage(GetParent(), THREAD_ENDED, static_cast<CKernelLaunchThread*>(this));
+
+		SendMessage(nullptr, THREAD_ENDED, static_cast<CKernelLaunchThread*>(this));
+
+
+		break;
+	case THREAD_ABORTED:
+		write_log(" thread Event Aborted - Address :" + std::to_string((uintptr_t)this));
+		if (m_RemainingTimer)
+			SendMessage(m_RemainingTimer, CLOSE_THREAD, 0);
+
+		SendMessage(nullptr, THREAD_ENDED, static_cast<CKernelLaunchThread*>(this));
+
+	}
 }

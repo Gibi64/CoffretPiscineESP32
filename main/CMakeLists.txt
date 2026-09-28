@@ -15,6 +15,9 @@ idf_component_register(
         "CSerialClient.cpp"
         "modbus_convert.cpp"
         "InitLog.cpp"
+        "Entry.cpp"
+        "ReadConfig.cpp"
+        "CLaPoste.cpp"
     INCLUDE_DIRS "."
 )
 

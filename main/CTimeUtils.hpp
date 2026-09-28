@@ -2,12 +2,15 @@
 #if defined(_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <time.h>
 #include "esp_timer.h"
-
+#include <sys/time.h>
+#include "esp_system.h"
 #else
 #include <thread>
 #include <chrono>
 #include <sysinfoapi.h>
+
 #endif
 class CTimeUtils
 {
@@ -225,12 +228,18 @@ class CTimeUtils
             return tmp;
         }
     };
-    class sDurationTime :sUTCTime
+    class sDurationTime : public sUTCTime
     {
     public:
         sDurationTime()
         {
-            sUTCTime();
+            year = 0;
+            month = 0;
+            day = 0;
+            hour = 0;
+            minute = 0;
+            second = 0;
+            millisecond = 0;
         }
         sDurationTime(int y, int mo, int d, int h, int mi, int s, int ms)
         {
@@ -361,13 +370,19 @@ class CTimeUtils
     }
     static void CPUSleep(int ms)
     {
-        #ifdef _ESP32
-        vTaskDelay(ms / portTICK_PERIOD_MS);
-        #elif defined(_WIN32)
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-        #elif defined(__linux__)
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-        #endif
+        auto tDep = GetMs();
+        auto tFin = tDep;
+        while (tFin < tDep + ms)
+        {
+#ifdef _ESP32
+            vTaskDelay(1);
+#elif defined(_WIN32)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+#elif defined(__linux__)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+#endif
+            tFin = GetMs();
+        }
     }
     static int GetLastSundayOfMonthInYear(int Month, int Year)
     {

@@ -1,7 +1,7 @@
 {
     "version":            "1.3",
     "project_name":       "CoffretPiscine",
-    "project_version":    "1",
+    "project_version":    "3c43171-dirty",
     "project_path":       "C:/Local/Softwares/esp32/CoffretPiscine",
     "idf_path":           "C:/esp/v6.0.2/esp-idf",
     "build_dir":          "C:/Local/Softwares/esp32/CoffretPiscine/build",
@@ -1765,7 +1765,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Local/Softwares/esp32/CoffretPiscine/main/CoffretPiscine.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/Protocole.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleModbusRJE.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleFaulhaber.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleEurotherme.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleJBus.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleModbus.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleAscii.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleMatsu.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleBaldor.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleHbm.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleAleatoire.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CSerialClient.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/modbus_convert.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/InitLog.cpp" ],
+            "sources": [ "C:/Local/Softwares/esp32/CoffretPiscine/main/CoffretPiscine.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/Protocole.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleModbusRJE.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleFaulhaber.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleEurotherme.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleJBus.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleModbus.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleAscii.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleMatsu.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleBaldor.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleHbm.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CProtocoleAleatoire.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CSerialClient.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/modbus_convert.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/InitLog.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/Entry.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/ReadConfig.cpp", "C:/Local/Softwares/esp32/CoffretPiscine/main/CLaPoste.cpp" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
