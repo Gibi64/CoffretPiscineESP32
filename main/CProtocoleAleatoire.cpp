@@ -35,7 +35,7 @@ int CProtocoleAleatoire::AttenteTrameQuestion()
 	sprintf(Mem, "%d", rand());
 	#endif
 	*GetBufferReponse() = Mem;
-	nReceive = GetBufferReponse()->length();
+	nReceive = static_cast<int>(GetBufferReponse()->length());
 	xValues[0] = atof(BufferReponse.c_str());
 	bStillWaitingforAnswer = false;
 	delete[] Mem;

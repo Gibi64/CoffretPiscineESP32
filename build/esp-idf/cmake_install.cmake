@@ -1,4 +1,4 @@
-# Install script for directory: C:/esp/v6.0.2/esp-idf
+# Install script for directory: C:/esp/v6.1/esp-idf
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32-elf-objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Users/Jacques/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32-elf-objdump.exe")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
@@ -244,6 +244,16 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_regi2c/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_systimer/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_touch_sens/cmake_install.cmake")
 endif()
 
@@ -429,6 +439,16 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_asrc/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_asrc_adapter/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_blockdev_util/cmake_install.cmake")
 endif()
 
@@ -464,12 +484,27 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_cordic/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_driver_cordic/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_driver_dac/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_driver_i2c/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_i3c/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
@@ -599,6 +634,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_hal_emac/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/esp_eth/cmake_install.cmake")
 endif()
 
@@ -680,11 +720,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/fatfs/cmake_install.cmake")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
-  include("C:/Local/Softwares/esp32/CoffretPiscine/build/esp-idf/idf_test/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

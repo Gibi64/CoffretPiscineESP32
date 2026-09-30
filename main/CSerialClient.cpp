@@ -65,8 +65,11 @@ int CSerialClient::connect(char* port_arg, int rate_arg, char parity, int number
     disconnect();
 
     if (!port_arg) return 16;
-
+#ifdef _WIN32
+    strncpy_s(port, sizeof(port), port_arg, _TRUNCATE);
+#else
     strncpy(port, port_arg, sizeof(port) - 1);
+#endif
     port[sizeof(port) - 1] = '\0';
     rate = rate_arg;
 

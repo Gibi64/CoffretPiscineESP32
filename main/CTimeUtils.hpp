@@ -12,6 +12,7 @@
 #include <sysinfoapi.h>
 
 #endif
+#include <string>
 class CTimeUtils
 {
     struct sDate
@@ -144,7 +145,7 @@ class CTimeUtils
             // Ajustement des jours selon le mois
             while (true)
             {
-                int mdays;
+                int mdays = 0;
 
                 switch (month)
                 {
@@ -424,6 +425,71 @@ class CTimeUtils
         // on ajoute 1 au resultat et on refait un mosulo
         auto DayOfWeek = GetNumberOfDaysSince2001(theDate) % 7 + 1;
         DayOfWeek = DayOfWeek % 7;
-        return DayOfWeek;
+        return static_cast<int>(DayOfWeek);
+    }
+    static std::string FormatDeltaTime(long long ms)
+    {
+        long long days = ms / 86400000;
+        long long hours = (ms % 86400000) / 3600000;
+        long long minutes = (ms % 3600000) / 60000;
+        long long seconds = (ms % 60000) / 1000;
+        char Buf[40];
+#ifdef _WIN32
+        sprintf_s(Buf, "%2lld Days %02lld:%02lld:%02lld", days, hours, minutes, seconds);
+#else
+        sprintf(Buf, "%2lld Days %02lld:%02lld:%02lld", days, hours, minutes, seconds);
+#endif
+        return std::string(Buf);
+    }
+    static sUTCTime LocalTimeFromUTC(sUTCTime utcTime)
+    {
+        sUTCTime result = utcTime;
+		auto LastMarchSunday = GetLastSundayOfMonthInYear(3, utcTime.year);
+		auto LastOctoberSunday = GetLastSundayOfMonthInYear(10, utcTime.year);
+
+        if (utcTime.month > 3 && utcTime.month < 10)
+        {
+            result.hour += 2; // Heure d'été
+        }
+        else if (utcTime.month == 3 && utcTime.day >= LastMarchSunday)
+        {
+            result.hour += 2; // Heure d'été
+        }
+        else if (utcTime.month == 10 && utcTime.day < LastOctoberSunday)
+        {
+            result.hour += 2; // Heure d'été
+        }
+        else
+        {
+            result.hour += 1; // Heure d'hiver
+		}
+
+        if (result.hour > 24)
+        {
+            result.hour -= 24;
+            result.day++;
+			int daysInMonth = 31;
+            if (result.month == 2)
+            {
+                daysInMonth = IsBisextil(result.year) ? 29 : 28;
+            }
+            else if (result.month == 4 || result.month == 6 || result.month == 9 || result.month == 11)
+            {
+                daysInMonth = 30;
+			}
+
+            if (result.day > daysInMonth)
+            {
+                result.month++;
+                if (result.month > 12)
+                {
+                    result.month = 1;
+                    result.year++;
+                }
+				result.day = 1;
+            }
+        }
+
+        return result;
     }
 };

@@ -181,15 +181,23 @@ CCoffretPiscine::CProgEvents::CProgEvents(CLaPoste* pLaPoste, CCoffretPiscine* p
 	CorrectGenericStartToUTC();
 	m_RemainingTimer = nullptr;
 	m_Event_State = INIT_EVENT;
+	auto timeToday = CTimeUtils::SystemDateTime(CTimeUtils::GetMs());
+	m_StartTimeHourOfDay.year = timeToday.year;
+	if (m_StartTimeHourOfDay.month == 0) m_StartTimeHourOfDay.month = timeToday.month;
+	if(m_StartTimeHourOfDay.day == 0) m_StartTimeHourOfDay.day = timeToday.day;
+	if (m_StartTimeHourOfDay < timeToday)
+	{
+		m_StartTimeHourOfDay.day += 1;
+	}
+
 	m_RemainingTime = m_StartTimeHourOfDay.ToMs() - CTimeUtils::GetMs();
 	#ifdef _ESP32
-	write_log("Lancement de la thread Event - Remaining Time :" + std::to_string(m_RemainingTime));
+	write_log("Lancement de la thread Event - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime));
 	#else
-	write_log("Lancement de la thread Event - Remaining Time :" + std::to_string(m_RemainingTime) +" ID = " + std::to_string(GetCurrentThreadId()));
+	write_log("Lancement de la thread Event - Remaining Time : " + CTimeUtils::FormatDeltaTime(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
 	#endif
 	// tout est pret pour lancer la thread
-
-	//m_thread = std::make_unique<std::thread>(ThreadEntry, this);
+	Start();
 }
 void CCoffretPiscine::CProgEvents::Function()
 {
@@ -212,9 +220,9 @@ void CCoffretPiscine::CProgEvents::Function()
 		m_RemainingTimer = new CTimerThread(GetLaPoste(), static_cast<CKernelLaunchThread*>(this), m_RemainingTime);
 		m_Event_State = WAITING_START_TIME;
 		#ifdef _ESP32
-		write_log("Event INIT - Remaining Time :" + std::to_string(m_RemainingTime));
+		write_log("Event INIT - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime));
 		#else
-		write_log("Event INIT - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		write_log("Event INIT - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
 		#endif
 		break;
 	case WAITING_START_TIME:
@@ -223,9 +231,9 @@ void CCoffretPiscine::CProgEvents::Function()
 			return;
 		// Le <timer est termin� ? on ex�cute l�action et on lance le timer pour la dur�e de l�action
 		#ifdef _ESP32
-		write_log("Event START - Remaining Time :" + std::to_string(m_RemainingTime));
+		write_log("Event START - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime));
 		#else
-		write_log("Event START - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		write_log("Event START - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
 		#endif
 		m_pCoffret->SendRelay(ActionId, 1);
 		m_Event_State = WAITING_END_TIME;
@@ -238,9 +246,9 @@ void CCoffretPiscine::CProgEvents::Function()
 		if (m_RemainingTimer)
 			return;
 		#ifdef _ESP32
-		write_log("Event END - Remaining Time :" + std::to_string(m_RemainingTime));
+		write_log("Event END - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime));
 		#else
-		write_log("Event END - Remaining Time :" + std::to_string(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
+		write_log("Event END - Remaining Time :" + CTimeUtils::FormatDeltaTime(m_RemainingTime) + " ID = " + std::to_string(GetCurrentThreadId()));
 		#endif
 		m_pCoffret->SendRelay(ActionId, 0);
 		m_Event_State = INIT_EVENT;
@@ -264,8 +272,7 @@ void CCoffretPiscine::CProgEvents::HandleMessage(CLaPoste::sMessage msg)
 		// On teste ici si le m_RemainingTimer est toujours la map du Kernel
 		// si c'est le cas il faut attendre qu'il diparaisse pour mettre le pointeur à 0
 		m_RemainingTimer = nullptr;
-		m_RemainingTime /= 2;
-		write_log("Apres Sleep - Remaining Time :" + std::to_string(m_RemainingTime));
+		m_RemainingTime /= 2; // Inutilisé - la dichotomie n'est plus implementée
 	}
 }
 void CCoffretPiscine::CProgEvents::Cleanup()

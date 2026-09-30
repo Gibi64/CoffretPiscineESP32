@@ -109,9 +109,9 @@ public:
 		CProgEvents(CLaPoste* pLaPoste, CCoffretPiscine* pCoffret, std::string Id, CTimeUtils::sUTCTime StartTimeHourOfDay, CTimeUtils::sDurationTime Frequency, CTimeUtils::sDurationTime Duration);
 		
 
-		virtual void Function ();
-		virtual void HandleMessage(CLaPoste::sMessage msg);
-		virtual void Cleanup();
+		virtual void Function () ;
+		virtual void HandleMessage(CLaPoste::sMessage msg) override;
+		virtual void Cleanup() override;
 		
 		void CorrectGenericStartToUTC();
 		CTimeUtils::sUTCTime CorrectGenericStartToLocalTime();

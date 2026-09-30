@@ -24,8 +24,8 @@ void CProtocoleFaulhaber::EnvoieTrameQuestion(CExternalVariable* pVar)
 	bfc[1] = 7; //Request length 
 	bfc[2] = 0;//Node number
 	bfc[3] = 1;//Request code
-	bfc[4] = LOWORD(index);
-	bfc[5] = HIWORD(index);
+	bfc[4] = static_cast<uint8_t>(LOWORD(index));
+	bfc[5] = static_cast<uint8_t>(HIWORD(index));
 	bfc[6] = subIndex;
 	bfc[7] = crc(bfc, 6);
 	bfc[8] = 'E';

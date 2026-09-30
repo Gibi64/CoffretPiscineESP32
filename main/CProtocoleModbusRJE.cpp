@@ -53,8 +53,8 @@ void CProtocoleModbusRJE::EnvoieTrameQuestion(CExternalVariable* pVar)
 			ModbusMsg[7] = pVar->Code_Function_Read_Register;
 
 			//      Nombre de registres 16 bits
-			ModbusMsg[10] = HIWORD(pVar->NumberOfRegistersToRead);// poids fort
-			ModbusMsg[11] = LOWORD(pVar->NumberOfRegistersToRead);// poids faible
+			ModbusMsg[10] = static_cast<unsigned char>(HIWORD(pVar->NumberOfRegistersToRead));// poids fort
+			ModbusMsg[11] = static_cast<unsigned char>(LOWORD(pVar->NumberOfRegistersToRead));// poids faible
 
 			nWaitingBytes = pVar->NumberOfRegistersToRead * 2;
 			this->bStillWaitingforAnswer = false;
@@ -67,8 +67,8 @@ void CProtocoleModbusRJE::EnvoieTrameQuestion(CExternalVariable* pVar)
 
 			ModbusMsg[7] = 1;
 			//Nombre de bits
-			ModbusMsg[10] = HIWORD(pVar->NumberOfRegistersToRead);// poids fort
-			ModbusMsg[11] = LOWORD(pVar->NumberOfRegistersToRead);// poids faible
+			ModbusMsg[10] = static_cast<unsigned char>(HIWORD(pVar->NumberOfRegistersToRead));// poids fort
+			ModbusMsg[11] = static_cast<unsigned char>(LOWORD(pVar->NumberOfRegistersToRead));// poids faible
 
 			bStillWaitingforAnswer = false;
 			pTCPClient->TransmitTCP(ModbusMsg, 12);
@@ -82,8 +82,8 @@ void CProtocoleModbusRJE::EnvoieTrameQuestion(CExternalVariable* pVar)
 			ModbusMsg[7] = 2;
 			//Nombre de bits
 
-			ModbusMsg[10] = HIWORD(pVar->NumberOfRegistersToRead);// poids fort
-			ModbusMsg[11] = LOWORD(pVar->NumberOfRegistersToRead);// poids faible
+			ModbusMsg[10] = static_cast<unsigned char>(HIWORD(pVar->NumberOfRegistersToRead));// poids fort
+			ModbusMsg[11] = static_cast<unsigned char>(LOWORD(pVar->NumberOfRegistersToRead));// poids faible
 
 
 			bStillWaitingforAnswer = false;
@@ -98,6 +98,7 @@ void CProtocoleModbusRJE::EnvoieTrameQuestion(CExternalVariable* pVar)
 int CProtocoleModbusRJE::AttenteTrameQuestion()
 {
     char receiveBuffer[200];
+	memset(receiveBuffer, 0, sizeof(receiveBuffer));
     //int byteCount = pTCPClient->ReceiveTCP(GetBufferReponse());
     uint16_t src[2];
 	int FunctionCode = receiveBuffer[7];

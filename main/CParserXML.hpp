@@ -346,7 +346,7 @@ public:
 	class CXMLParser
 	{ 
 	private:
-	XMLDocumentT<CH>* m_Document;
+	XMLDocumentT<CH>* m_Document = nullptr;
 	XMLNodeT<CH>* m_pCurrent_Node = nullptr;
 
 	int* MatrixActions;

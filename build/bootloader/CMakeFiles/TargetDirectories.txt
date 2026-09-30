@@ -2,6 +2,7 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/menuconfig.d
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/config-report.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/confserver.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/save-defconfig.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/refresh-config.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/_project_elf_src.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/bootloader.elf.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/CMakeFiles/size.dir
@@ -38,6 +39,11 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_usb/CMa
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_pmu/CMakeFiles/__idf_esp_hal_pmu.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_pmu/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_pmu/CMakeFiles/rebuild_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_regi2c/CMakeFiles/edit_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_regi2c/CMakeFiles/rebuild_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/edit_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_dma/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_dma/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_gpspi/CMakeFiles/__idf_esp_hal_gpspi.dir
@@ -46,6 +52,7 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_gpspi/C
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_clock/CMakeFiles/__idf_esp_hal_clock.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_clock/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_clock/CMakeFiles/rebuild_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_mspi/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_mspi/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_blockdev/CMakeFiles/edit_cache.dir
@@ -71,9 +78,6 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_timg/CM
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_wdt/CMakeFiles/__idf_esp_hal_wdt.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_wdt/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_wdt/CMakeFiles/rebuild_cache.dir
-C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/__idf_esp_hal_uart.dir
-C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/edit_cache.dir
-C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_uart/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_i2s/CMakeFiles/__idf_esp_hal_i2s.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_i2s/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_i2s/CMakeFiles/rebuild_cache.dir
@@ -101,6 +105,8 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/efuse/CMakeFile
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/efuse/CMakeFiles/efuse_test_table.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/efuse/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/efuse/CMakeFiles/rebuild_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_systimer/CMakeFiles/edit_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hal_systimer/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_system/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_system/CMakeFiles/rebuild_cache.dir
@@ -111,6 +117,8 @@ C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/port/esp32/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/lowpower/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/lowpower/CMakeFiles/rebuild_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/modem/CMakeFiles/edit_cache.dir
+C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_hw_support/modem/CMakeFiles/rebuild_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_common/CMakeFiles/__idf_esp_common.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_common/CMakeFiles/edit_cache.dir
 C:/Local/Softwares/esp32/CoffretPiscine/build/bootloader/esp-idf/esp_common/CMakeFiles/rebuild_cache.dir

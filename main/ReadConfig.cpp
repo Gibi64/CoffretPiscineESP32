@@ -56,8 +56,12 @@ void CCoffretPiscine::ReadConfigFile(std::string FileName, CTCPLib* pTCPLib)
 		delete entry;
 	}
 	m_VectorEntry.clear();
-	FILE* ptr;
+	FILE* ptr = nullptr;
+#ifdef _WIN32
+	fopen_s(&ptr, FileName.c_str(), "r");
+#else
 	ptr = fopen(FileName.c_str(), "r");
+#endif
 	if (!ptr)
 	{
 		write_log("Failed to open file: " + FileName);
@@ -155,8 +159,12 @@ void CCoffretPiscine::ReadConfigFile(std::string FileName, CTCPLib* pTCPLib)
 }
 void CCoffretPiscine::WriteConfigFile(std::string FileName, std::string Data)
 {
-	FILE* ptr;
+	FILE* ptr = nullptr;
+#ifdef _WIN32
+	fopen_s(&ptr, FileName.c_str(), "wt+");
+#else
 	ptr = fopen(FileName.c_str(), "wt+");
+#endif
 	if (!ptr)
 	{
 		write_log("Failed to open file for writing: " + FileName);

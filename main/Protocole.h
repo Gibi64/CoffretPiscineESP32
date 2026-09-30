@@ -16,6 +16,15 @@ public:
 	CExternalVariable()
 	{
 		bFromAdvise = false;
+		AdressOfCard = 0;
+		Register = 0;
+		NumberOfRegistersToRead = 0;
+		Frequency = 0;
+		LineOfGrid = 0;
+		m_LastTimeOfRequest = 0;
+		NumberOfRegistersToRead = 0;
+		AdressOfCard = 0;
+		Code_Function_Read_Register = 3;
 	};
 	std::string StringOfRequest;
 	double Frequency;

@@ -82,7 +82,7 @@ void CProtocole::AddExternalVariable(std::string Id, std::string StringOfRequest
 	pExternalVariable->Id = Id;
 	pExternalVariable->StringOfRequest = StringOfRequest;
 	pExternalVariable->Frequency = Frequency;
-	pExternalVariable->m_LastTimeOfRequest = CTimeUtils::GetMs	();
+	pExternalVariable->m_LastTimeOfRequest = static_cast<double>(CTimeUtils::GetMs());
 	m_ListOfExternalVariables.push_back(pExternalVariable);
 }
 
