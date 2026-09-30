@@ -9,11 +9,43 @@
 #include "esp_netif.h"
 #include "nvs_flash.h"
 #include "esp_spiffs.h"
+/////////////////////// time utc initialisation
+#include "esp_sntp.h"
+
 #endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if defined(_WINDOWS)
 int main()
 #elif defined(_ESP32)
+void init_time()
+{
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, "192.168.1.1");   // La box comme serveur NTP
+    sntp_init();
+}
+
+
+bool wait_for_time()
+{
+    time_t now = 0;
+    struct tm timeinfo = {};
+
+    for (int i = 0; i < 20; i++)
+    {
+        time(&now);
+        localtime_r(&now, &timeinfo);
+
+        if (timeinfo.tm_year > (1970 - 1900))
+        {
+            return true; // L'heure est valide
+        }
+
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    }
+
+    return false;
+}
+
 void InitWiFi_STA_FixedIP()
 {
 	// --- NVS obligatoire ---
@@ -23,14 +55,15 @@ void InitWiFi_STA_FixedIP()
 
 	// --- Interface STA ---
 	esp_netif_t* netif = esp_netif_create_default_wifi_sta();
+	esp_netif_set_hostname(netif, "ESP32_PISCINE");
 
 	// --- Configuration IP fixe ---
 	esp_netif_ip_info_t ip_info;
-	esp_netif_str_to_ip4("192.168.1.95", &ip_info.ip);        // IP fixe de l'ESP32
-	esp_netif_str_to_ip4("192.168.1.1", &ip_info.gw);;        // Box SFR
-	esp_netif_str_to_ip4("255.255.255.0", &ip_info.netmask);  // Masque
+	esp_netif_str_to_ip4("192.168.1.95", &ip_info.ip);
+	esp_netif_str_to_ip4("192.168.1.1",  &ip_info.gw);
+	esp_netif_str_to_ip4("255.255.255.0", &ip_info.netmask);
 
-	ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));     // Stop DHCP
+	ESP_ERROR_CHECK(esp_netif_dhcpc_stop(netif));
 	ESP_ERROR_CHECK(esp_netif_set_ip_info(netif, &ip_info));
 
 	// --- Init WiFi ---
@@ -39,9 +72,6 @@ void InitWiFi_STA_FixedIP()
 
 	// --- Configuration STA ---
 	wifi_config_t wifi_config = {};
-	strcpy((char*)wifi_config.ap.ssid, "ESP32_PISCINE");
-	wifi_config.ap.ssid_len = strlen("ESP32_PISCINE");
-
 	strcpy((char*)wifi_config.sta.ssid, "Box_salon_uzos_2G");
 	strcpy((char*)wifi_config.sta.password, "arpege64");
 
@@ -88,6 +118,13 @@ extern "C" void app_main(void)
 	std::string szFullPath = "/spiffs/config.xml";
 	InitSPIFFS();
 	InitWiFi_STA_FixedIP();
+// Initialisation de l'heure
+	init_time();
+	if (!wait_for_time())
+	{
+		write_log("Heure non valide, timers en attente");
+		return;
+	}
 #endif
 
 	std::unique_ptr<CCoffretPiscine> pCoffret = std::make_unique<CCoffretPiscine>();

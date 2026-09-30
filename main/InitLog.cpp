@@ -23,7 +23,7 @@ esp_vfs_spiffs_conf_t conf = {
 void write_log(const std::string msg)
 {
     #ifdef _ESP32
-        ESP_LOGI("NMEA","%s\n", msg.c_str());
+        ESP_LOGI("LOG","%s\n", msg.c_str());
     #else
         printf("%s\n", msg.c_str());
     #endif  
