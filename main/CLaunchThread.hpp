@@ -163,7 +163,9 @@ CLaPoste* GetLaPoste() const
         if (pThis->GetLaPoste())
             pThis->Cleanup();
         //write_log("Cleanup DONE for " + std::to_string((uintptr_t)pThis));
-
+		#if defined(_ESP32)
+			vTaskDelete(NULL);     // OBLIGATOIRE
+		#endif
     }
 };
 
