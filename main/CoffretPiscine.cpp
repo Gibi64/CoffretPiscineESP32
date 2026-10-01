@@ -201,18 +201,7 @@ CCoffretPiscine::CProgEvents::CProgEvents(CLaPoste* pLaPoste, CCoffretPiscine* p
 }
 void CCoffretPiscine::CProgEvents::Function()
 {
-	CLaPoste::sMessage msg;
-	while (GetLaPoste()->GetMessage(this, &msg))
-	{
-		HandleMessage(msg);
 
-		// On laisse une respiration pour un éventuel CLOSE_THREAD
-		CTimeUtils::CPUSleep(1);
-	}
-	if (GetState() !=THREAD_RUNNING)
-		return;
-
-	// Sinon → on exécute l’action
 	switch (m_Event_State)
 	{
 	case INIT_EVENT:
@@ -260,12 +249,27 @@ void CCoffretPiscine::CProgEvents::HandleMessage(CLaPoste::sMessage msg)
 {
 	if (msg.Command == CLOSE_THREAD)
 	{
-		SetState(THREAD_ABORTED);
 		if (m_RemainingTimer)
 		{
+			auto MaxTime = CTimeUtils::GetMs() + 200;
 			SendMessage(m_RemainingTimer, CLOSE_THREAD, 0);
+			/* Ce patch est inutile le CLOSE_THREAD est forcément arrivé
+			// On met un petit TimeOut pour que le Timer recoive le CLOSE
+			bool bTimerClosed = false;
+			////////////// Synchronisation 
+			while (!bTimerClosed && CTimeUtils::GetMs() < MaxTime)
+			{
+				CTimeUtils::CPUSleep(2);
+				if (!m_pCoffret->GetLaPoste()->GetThreadSet()->count(m_RemainingTimer)) bTimerClosed = true;
+			}
+			if (!bTimerClosed)
+			{
+				write_log("Impossible de fermer le Timer");
+			}
+			*/
 		}
-			
+		SetState(THREAD_ABORTED);
+	
 	}
 	else if (msg.Command == THREAD_DESTROYED && msg.pParam == m_RemainingTimer)
 	{ 

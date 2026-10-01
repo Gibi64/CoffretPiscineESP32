@@ -105,8 +105,21 @@ public:
 
     void ThreadLoop()
     {
+		CLaPoste::sMessage msg;
         while (GetState() == THREAD_RUNNING)
         {
+			if (GetLaPoste())
+			{
+				while (GetLaPoste()->GetMessage(this,&msg))
+				{		
+					HandleMessage(msg);
+
+					// On laisse une respiration pour un éventuel CLOSE_THREAD
+					CTimeUtils::CPUSleep(1);
+				}
+				if (GetState() !=THREAD_RUNNING)
+				return;
+			}
             Function();
             CTimeUtils::CPUSleep(10);
         }
